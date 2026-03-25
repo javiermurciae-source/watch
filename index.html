@@ -1377,11 +1377,12 @@
             }
         });
 
-        // --- CONFIGURACIÓN DE PEERJS CON API DINÁMICA DE METERED ---
+        // --- CONFIGURACIÓN DE PEERJS ROBUSTA (AUTO-DETECCIÓN RENDER/LOCAL) ---
         let myPeer;
         async function initPeerSystem() {
             let iceServers = [
                 { 'urls': 'stun:stun.l.google.com:19302' },
+                { 'urls': 'stun:stun.relay.metered.ca:80' },
                 {
                     urls: "turn:global.relay.metered.ca:80",
                     username: "707c168f456662ae3aef0a42",
@@ -1403,19 +1404,30 @@
                 const r = await fetch("https://rootkit.metered.live/api/v1/turn/credentials?apiKey=3acc63df49182216ecfed73946d7a45801ca");
                 if (r.ok) {
                     const fetchedServers = await r.json();
-                    if (fetchedServers && fetchedServers.length > 0) {
-                        iceServers = fetchedServers;
-                    }
+                    if (fetchedServers && fetchedServers.length > 0) iceServers = fetchedServers;
                 }
-            } catch (e) { console.warn("Error TURN, usando credenciales de respaldo:", e); }
+            } catch (e) { console.warn("Usando servidores TURN de respaldo."); }
 
-            myPeer = new Peer(undefined, { 
+            // Configuración Inteligente: Si estamos en Render o local con puerto, apuntamos a nuestro propio PeerServer
+            const peerConfig = { 
                 debug: 1, 
                 config: { iceServers: iceServers, iceCandidatePoolSize: 10 } 
-            });
+            };
+            
+            // Si no estamos en localhost/127, intentamos usar nuestro propio servidor en /peerjs de Render
+            const isPublic = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+            if (isPublic) {
+                peerConfig.host = window.location.hostname;
+                peerConfig.port = 443;
+                peerConfig.path = '/peerjs';
+                peerConfig.secure = true;
+            }
+
+            myPeer = new Peer(undefined, peerConfig);
 
             myPeer.on('open', id => {
                 myPeerId = id;
+                console.log("PeerID Abierto:", id);
                 if (loginScreen.style.display === 'none' && !joinedRoom) {
                     socket.emit('join-room', username, myAvatar, id);
                     joinedRoom = true;
@@ -1423,6 +1435,7 @@
             });
 
             myPeer.on('call', call => {
+                console.log("Recibiendo llamada de:", call.peer);
                 call.answer();
                 call.on('stream', st => {
                     const type = (call.metadata && call.metadata.type) ? call.metadata.type : 'screenshare';
@@ -1435,7 +1448,10 @@
                 });
             });
 
-            myPeer.on('error', err => { console.error("PeerJS Error:", err.type); });
+            myPeer.on('error', err => { 
+                console.error("PeerJS Error:", err.type, err); 
+                if (err.type === 'peer-unavailable') console.warn("Peer no disponible.");
+            });
         }
         initPeerSystem();
 
@@ -2093,8 +2109,8 @@
 
             if (data.msg.startsWith('[STICKER:') && data.msg.endsWith(']')) {
                 isSticker = true;
-                const url = sanitizar(data.msg.slice(9, -1));
-                displayMsg = `<img src="${url}" style="max-height: 120px; object-fit: contain; border-radius: 8px; background: transparent; margin-top: 5px; cursor: pointer;" onclick="window.open(this.src, '_blank')">`;
+                const url = data.msg.slice(9, -1); // NO sanitizar la URL directamente aquí porque rompe caracteres de red
+                displayMsg = `<img src="${sanitizar(url)}" style="max-height: 120px; object-fit: contain; border-radius: 8px; background: transparent; margin-top: 5px; cursor: pointer;" onclick="window.open(this.src, '_blank')">`;
             } else {
                 displayMsg = `<p>${displayMsg}</p>`;
             }
@@ -2255,20 +2271,14 @@
         const handleStickerBtn = (e) => {
             e.preventDefault();
             e.stopPropagation();
-            e.stopImmediatePropagation();
             if (e.currentTarget) toggleStickerDrawer(e.currentTarget);
         };
 
-        // Asignación directa y limpia
-        if (btnSticker) {
-            ['mousedown', 'touchstart'].forEach(evt => {
-                btnSticker.addEventListener(evt, handleStickerBtn, { passive: false });
-            });
-        }
-        if (btnFloatSticker) {
-            ['mousedown', 'touchstart'].forEach(evt => {
-                btnFloatSticker.addEventListener(evt, handleStickerBtn, { passive: false });
-            });
+        if (btnSticker && btnFloatSticker) {
+            btnSticker.onclick = handleStickerBtn;
+            btnFloatSticker.onclick = handleStickerBtn;
+            btnSticker.ontouchend = handleStickerBtn;
+            btnFloatSticker.ontouchend = handleStickerBtn;
         }
 
         function renderStickers(stickers) {
