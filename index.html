@@ -1377,46 +1377,74 @@
             }
         });
 
-        // --- CONFIGURACIÓN DE PEERJS CON TUS CREDENCIALES DE METERED ---
-        const myPeer = new Peer(undefined, {
-            debug: 1,
-            config: {
-                'iceServers': [
-                    // Servidor STUN estándar de Google
-                    { 'urls': 'stun:stun.l.google.com:19302' },
-
-                    // TUS SERVIDORES TURN DE METERED (Usando tus credenciales)
-                    {
-                        urls: "turn:standard.metered.ca:80",
-                        username: "707c168f456662ae3aef0a42",
-                        credential: "RT7pCACvJx1T2fkT"
-                    },
-                    {
-                        urls: "turn:standard.metered.ca:443",
-                        username: "707c168f456662ae3aef0a42",
-                        credential: "RT7pCACvJx1T2fkT"
-                    },
-                    {
-                        // ESTA LÍNEA ES LA MÁS IMPORTANTE PARA SALTAR BLOQUEOS
-                        urls: "turn:standard.metered.ca:443?transport=tcp",
-                        username: "707c168f456662ae3aef0a42",
-                        credential: "RT7pCACvJx1T2fkT"
+        // --- CONFIGURACIÓN DE PEERJS CON API DINÁMICA DE METERED ---
+        let myPeer;
+        async function initPeerSystem() {
+            let iceServers = [
+                { 'urls': 'stun:stun.l.google.com:19302' },
+                {
+                    urls: "turn:standard.metered.ca:80",
+                    username: "707c168f456662ae3aef0a42",
+                    credential: "RT7pCACvJx1T2fkT"
+                },
+                {
+                    urls: "turn:standard.metered.ca:443",
+                    username: "707c168f456662ae3aef0a42",
+                    credential: "RT7pCACvJx1T2fkT"
+                },
+                {
+                    urls: "turn:standard.metered.ca:443?transport=tcp",
+                    username: "707c168f456662ae3aef0a42",
+                    credential: "RT7pCACvJx1T2fkT"
+                }
+            ];
+            
+            try {
+                const r = await fetch("https://rootkit.metered.live/api/v1/turn/credentials?apiKey=3acc63df49182216ecfed73946d7a45801ca");
+                if (r.ok) {
+                    const fetchedServers = await r.json();
+                    if (fetchedServers && fetchedServers.length > 0) {
+                        iceServers = fetchedServers;
                     }
-                ],
-                'iceCandidatePoolSize': 10
-            }
-        });
+                }
+            } catch (e) { console.warn("Error TURN, usando credenciales de respaldo:", e); }
 
+            const host = window.location.hostname;
+            const port = window.location.port || (window.location.protocol === 'https:' ? 443 : 80);
+            
+            myPeer = new Peer(undefined, { 
+                host: host,
+                port: port,
+                path: '/peerjs',
+                secure: window.location.protocol === 'https:',
+                debug: 1, 
+                config: { iceServers: iceServers, iceCandidatePoolSize: 10 } 
+            });
 
+            myPeer.on('open', id => {
+                myPeerId = id;
+                if (loginScreen.style.display === 'none' && !joinedRoom) {
+                    socket.emit('join-room', username, myAvatar, id);
+                    joinedRoom = true;
+                }
+            });
 
+            myPeer.on('call', call => {
+                call.answer();
+                call.on('stream', st => {
+                    const type = (call.metadata && call.metadata.type) ? call.metadata.type : 'screenshare';
+                    if (type === 'webcam') {
+                        agregarWebcamLocal(call.peer, st, call.metadata.username || "Invitado", call.metadata.avatar, false, call.metadata.camEnabled);
+                    } else {
+                        if (st.getVideoTracks().length > 0) prepararInterfazVideo(st, true, false);
+                        else { const a = document.createElement('audio'); a.srcObject = st; a.play().catch(e => console.log(e)); }
+                    }
+                });
+            });
 
-        myPeer.on('open', id => {
-            myPeerId = id;
-            if (loginScreen.style.display === 'none' && !joinedRoom) {
-                socket.emit('join-room', username, myAvatar, id);
-                joinedRoom = true;
-            }
-        });
+            myPeer.on('error', err => { console.error("PeerJS Error:", err.type); });
+        }
+        initPeerSystem();
 
         const playSnd = (id) => {
             const el = document.getElementById(id);
