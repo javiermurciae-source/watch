@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WatchParty Pro - Ultra Sync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-nav: #0f0f13;
+            --bg-main: #000000;
+            --bg-panel: #18181b;
+            --accent: #8b5cf6;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* =========================================
+           PANTALLA DE INICIO (LOGIN)
+           ========================================= */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0a0a0a;
+            z-index: 999999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background-color: var(--bg-panel);
+            width: 90%;
+            max-width: 400px;
+            padding: 40px 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .login-avatar-container {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 4px solid var(--bg-panel);
+            outline: 2px solid var(--accent);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .login-avatar-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .login-avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-color: #ff5722;
+        }
+
+        .login-avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 6px;
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+        }
+
+        .login-avatar-container:hover .login-avatar-overlay {
+            opacity: 1;
+        }
+
+        .login-avatar-overlay i {
+            color: white;
+            font-size: 16px;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+        }
+
+        .login-avatar-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: var(--accent);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+            border: 3px solid var(--bg-panel);
+            z-index: 2;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .login-avatar-container:hover .login-avatar-badge {
+            transform: scale(1.15);
+            background: #7c3aed;
+        }
+
+        .login-card h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .login-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .login-input-group {
+            margin-bottom: 20px;
+        }
+
+        #login-username {
+            width: 100%;
+            background-color: #09090b;
+            border: 1px solid #27272a;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        #login-username:focus {
+            border-color: var(--accent);
+        }
+
+        .login-btn {
+            width: 100%;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .login-btn:hover {
+            background-color: #7c3aed;
+            transform: translateY(-2px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* =========================================
+           NAVEGACIÓN IZQUIERDA
+           ========================================= */
+        .side-nav {
+            width: 60px;
+            background-color: var(--bg-nav);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            border-right: 1px solid #222;
+            z-index: 100;
+            transition: 0.3s;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .nav-icon:hover,
+        .nav-icon.active {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        /* =========================================
+           ÁREA CENTRAL Y REPRODUCTOR
+           ========================================= */
+        .main-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        #main-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+            background: #000;
+            z-index: 10;
+        }
+
+        .start-menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            z-index: 50;
+            text-align: center;
+            background: rgba(24, 24, 27, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s;
+        }
+
+        .btn-menu {
+            background: #111;
+            border: 1px solid #333;
+            color: white;
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: 0.2s;
+            text-align: left;
+        }
+
+        .btn-menu:hover {
+            background: #222;
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .custom-controls {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            display: none;
+            align-items: center;
+            padding: 0 20px;
+            gap: 10px;
+            z-index: 100;
+            transition: opacity 0.3s;
+        }
+
+        .main-view.idle .custom-controls {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .control-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid transparent;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 10px;
+            margin-right: auto;
+        }
+
+        #progress-bar {
+            flex: 1;
+            cursor: pointer;
+            height: 5px;
+            background: #444;
+            border-radius: 2px;
+            appearance: none;
+            outline: none;
+        }
+
+        #progress-bar::-webkit-slider-thumb {
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        /* =========================================
+           CHAT INTERACTIVO (PANTALLA COMPLETA)
+           ========================================= */
+        #interactive-floating-chat {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            height: calc(100% - 120px);
+            background: rgba(15, 15, 19, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 90;
+            overflow: hidden;
+            transition: opacity 0.3s, transform 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        #interactive-floating-chat.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(30px);
+        }
+
+        #float-chat-header {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        #float-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .float-chat-input-area {
+            display: flex;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            align-items: center;
+        }
+
+        #float-chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        #btn-float-send {
+            color: var(--accent);
+            cursor: pointer;
+            padding: 10px;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        #btn-float-send:hover {
+            transform: scale(1.1);
+        }
+
+        /* BURBUJAS DE NOTIFICACIÓN TEMPORALES */
+        #floating-chat-container {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            width: 300px;
+            max-height: 50%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 60;
+            pointer-events: none;
+        }
+
+        .floating-msg {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            padding: 10px 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInFloat 0.3s ease-out, fadeOutFloat 0.5s ease-in forwards 4s;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes slideInFloat {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOutFloat {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* Lluvia de Emojis */
+        @keyframes emojiRainAnim {
+            0% {
+                transform: translateY(0) rotate(-10deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(25deg);
+                opacity: 0;
+            }
+        }
+
+        .reaction-emoji {
+            position: absolute;
+            top: -50px;
+            font-size: 35px;
+            z-index: 1000;
+            pointer-events: none;
+            animation: emojiRainAnim linear forwards;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.8));
+            user-select: none;
+        }
+
+        .floating-msg-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .floating-msg-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .floating-msg-author {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 2px;
+        }
+
+        .floating-msg-text {
+            font-size: 13px;
+            color: white;
+            word-break: break-word;
+        }
+
+        /* =========================================
+           CÁMARAS Y PANELES
+           ========================================= */
+        .webcam-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .webcam-overlay.active {
+            display: flex;
+        }
+
+        .webcam-overlay video {
+            width: 90vw;
+            max-width: 1200px;
+            max-height: 80vh;
+            border-radius: 20px;
+            border: 4px solid var(--accent);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            object-fit: cover;
+            background: transparent;
+        }
+
+        .webcam-overlay-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: white;
+            font-size: 35px;
+            cursor: pointer;
+            z-index: 10001;
+            transition: 0.2s;
+        }
+
+        .webcam-overlay-close:hover {
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .webcam-overlay-name {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 30px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .right-panel {
+            width: 320px;
+            background-color: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #222;
+            z-index: 100;
+            transition: width 0.3s;
+            min-height: 0;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+
+        .status-dot.online {
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .webcams-container-overlay {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 15px;
+            padding: 10px;
+            z-index: 110;
+            overflow-x: auto;
+            max-width: 95%;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        .main-view.idle .webcams-container-overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .webcams-container-sidebar {
+            display: none;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #222;
+            overflow-x: auto;
+            flex-shrink: 0;
+            background: var(--bg-nav);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .webcams-container::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .webcams-container::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        .webcam-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .webcam-wrapper {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--accent);
+            background: #111;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .webcam-item:hover .webcam-wrapper {
+            transform: scale(1.08);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .webcam-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+        }
+
+        .local-cam {
+            transform: scaleX(-1) !important;
+        }
+
+        .webcam-name {
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            max-width: 100px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-area {
+            flex: 1;
+            min-height: 0;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-msg {
+            display: flex;
+            gap: 10px;
+        }
+
+        .msg-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+            object-fit: cover;
+        }
+
+        .msg-content h4 {
+            font-size: 13px;
+            margin-bottom: 2px;
+            color: var(--text-muted);
+        }
+
+        .msg-content p {
+            font-size: 14px;
+            word-break: break-word;
+            line-height: 1.4;
+            color: #ddd;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #222;
+        }
+
+        .chat-box {
+            background: #27272a;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            gap: 10px;
+        }
+
+        .chat-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+        /* =========================================
+           RESPONSIVE PARA CELULARES (ANDROID/IOS)
+           ========================================= */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .side-nav {
+                width: 100%;
+                height: 60px;
+                flex: 0 0 60px;
+                flex-direction: row;
+                padding: 0 10px;
+                border-right: none;
+                border-bottom: 1px solid #222;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 200;
+            }
+
+            .nav-icon {
+                margin-bottom: 0;
+                margin-top: 0 !important;
+            }
+
+            .main-view {
+                flex: 0 0 40%;
+                min-height: 0;
+            }
+
+            .right-panel {
+                width: 100%;
+                flex: 1;
+                border-left: none;
+                border-top: 1px solid #222;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            /* LIMPIAR EL MENÚ CENTRAL Y OCULTAR BOTONES EN MÓVIL */
+            .start-menu {
+                width: 100%;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .desktop-only-btn {
+                display: none !important;
+            }
+
+            .mobile-only-btn {
+                display: flex !important;
+            }
+
+            /* Ajustes Chat Interactivo en Móvil */
+            #interactive-floating-chat {
+                width: 100%;
+                left: 0;
+                top: 0;
+                height: calc(100% - 60px);
+                border-radius: 0;
+            }
+
+            #btn-float-sticker,
+            #btn-sticker,
+            #sticker-drawer {
+                display: none !important;
+            }
+
+            #time-current,
+            #time-total {
+                font-size: 12px;
+            }
+
+            .custom-controls {
+                padding: 0 10px;
+                height: 60px;
+                gap: 8px;
+                justify-content: center;
+            }
+
+            .control-btn {
+                font-size: 14px;
+                width: 35px;
+                height: 35px;
+            }
+
+            .progress-bar-container {
+                display: none;
+            }
+
+            #btn-theater {
+                display: none;
+            }
+
+            .reaction-btn {
+                padding: 0 !important;
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 15px !important;
+            }
+
+            .custom-controls {
+                gap: 5px !important;
+            }
+
+            .webcams-container {
+                padding: 15px;
+                gap: 10px;
+                justify-content: center;
+            }
+
+            .webcam-wrapper {
+                width: 75px;
+                height: 75px;
+            }
+
+            .webcam-name {
+                font-size: 11px;
+                max-width: 80px;
+            }
+        }
+
+        /* =========================================
+           NOTIFICACIONES GRANDES (TRANSMISIÓN)
+           ========================================= */
+        #big-notification-container {
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100000;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .big-toast {
+            background: rgba(15, 15, 19, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 20px 40px;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 92, 246, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: white;
+            animation: toastEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards, toastExit 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 4s;
+            max-width: 90vw;
+        }
+
+        .big-toast i {
+            font-size: 30px;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .big-toast-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .big-toast-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .big-toast-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        @keyframes toastEnter {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes toastExit {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: scale(0.8) translateY(-30px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================================================== -->
+    <!-- PANTALLA DE INICIO (LOGIN)                         -->
+    <!-- ================================================== -->
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="login-avatar-container" id="login-avatar-container"
+                onclick="document.getElementById('login-avatar-upload').click()" title="Toca para subir tu foto">
+                <img id="login-robot-img"
+                    src="https://api.dicebear.com/7.x/bottts/svg?seed=WatchParty&backgroundColor=ff5722"
+                    alt="Robot Avatar">
+                <div class="login-avatar-overlay">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <div class="login-avatar-badge">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+            <input type="file" id="login-avatar-upload" accept="image/*" style="display:none;">
+
+            <h1>WatchParty Pro</h1>
+            <p>Sube tu foto o usa un avatar automático</p>
+
+            <div class="login-input-group">
+                <input type="text" id="login-username" placeholder="Escribe tu nombre..." autocomplete="off"
+                    maxlength="20">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-direction: column;">
+                <button id="login-btn" class="login-btn">Entrar a la sala</button>
+                <button id="login-random-avatar-btn"
+                    style="background: transparent; color: var(--text-muted); width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #27272a; font-size: 12px; cursor: pointer; transition: 0.2s;"
+                    onmouseover="this.style.borderColor='var(--accent)'; this.style.color='white'"
+                    onmouseout="this.style.borderColor='#27272a'; this.style.color='var(--text-muted)'">🎲 Generar
+                    Avatar Aleatorio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAYS Y MODALES -->
+    <div class="webcam-overlay" id="webcam-overlay">
+        <i class="fas fa-times webcam-overlay-close" id="webcam-overlay-close"></i>
+        <video id="webcam-overlay-video" autoplay playsinline></video>
+        <div class="webcam-overlay-name" id="webcam-overlay-name"></div>
+    </div>
+
+    <div class="webcam-overlay" id="config-modal" style="z-index: 99999;">
+        <div
+            style="background: var(--bg-panel); width: 350px; border-radius: 20px; padding: 30px; border: 1px solid #333; text-align: center; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
+            <i class="fas fa-times" id="close-config"
+                style="position:absolute; top: 15px; right: 20px; cursor:pointer; font-size: 20px; color: var(--text-muted); transition: 0.2s;"></i>
+            <h2 style="margin-bottom: 25px; color: white;">Ajustes de Perfil</h2>
+            <div style="position: relative; width: 110px; height: 110px; margin: 0 auto 20px; cursor: pointer; border-radius: 50%; border: 3px solid var(--accent); transition: 0.2s;"
+                onclick="document.getElementById('avatar-upload-config').click()"
+                onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"
+                title="Sube foto desde tu PC/Celular">
+                <img id="config-avatar-preview" src=""
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; background: #111;">
+                <div
+                    style="position: absolute; bottom: 0; right: 0; background: var(--accent); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+            <input type="file" id="avatar-upload-config" accept="image/*" style="display:none;">
+            <div style="text-align: left; margin-bottom: 25px;">
+                <label
+                    style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display:block; font-weight: bold;">Tu
+                    Nombre</label>
+                <input type="text" id="config-name-input"
+                    style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 14px; border-radius: 12px; outline: none; transition: 0.2s; font-size: 15px;">
+            </div>
+            <button id="btn-save-config"
+                style="background: var(--accent); color: white; width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);">Guardar
+                Cambios</button>
+            <button id="btn-random-avatar"
+                style="background: transparent; color: var(--text-muted); width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #333; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 15px;">🎲
+                Generar Aleatorio</button>
+        </div>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- CONTENEDORES DE LA APP                             -->
+    <!-- ================================================== -->
+    <nav class="side-nav hidden" id="app-nav">
+        <div class="nav-icon active" title="Video Principal"><i class="fas fa-play"></i></div>
+        <div class="nav-icon" id="btn-toggle-chat" title="Ocultar/Mostrar Chat"><i class="fas fa-comment-dots"></i>
+        </div>
+        <div class="nav-icon" id="btn-settings" title="Configurar Perfil"><i class="fas fa-user-edit"></i></div>
+        <div class="nav-icon" title="Cerrar Sesión" id="btn-logout" style="margin-top: auto;" onclick="cerrarSesion()">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+    </nav>
+
+    <main class="main-view hidden" id="app-main">
+        <div id="floating-chat-container"></div>
+
+        <!-- CHAT INTERACTIVO FLOTANTE -->
+        <div id="interactive-floating-chat" class="hidden">
+            <div id="float-chat-header">
+                <span>Chat en Vivo</span>
+                <i class="fas fa-times" id="close-float-chat" style="cursor:pointer; color: #ef4444;"></i>
+            </div>
+            <div id="float-chat-messages"></div>
+            <div class="float-chat-input-area">
+                <i class="fas fa-sticky-note" id="btn-float-sticker"
+                    style="color: var(--text-muted); cursor: pointer; font-size: 20px; padding: 10px; margin-right: 5px; transition: 0.2s; flex-shrink: 0;"
+                    onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'"
+                    title="Stickers"></i>
+                <input type="text" id="float-chat-input" placeholder="Escribe un mensaje..." autocomplete="off">
+                <i class="fas fa-paper-plane" id="btn-float-send"></i>
+            </div>
+        </div>
+
+        <div class="start-menu" id="start-menu">
+            <div id="welcome-text"></div>
+
+            <label class="btn-menu desktop-only-btn">
+                <i class="fas fa-file-video" style="color: var(--accent); font-size: 22px;"></i>
+                <div><strong>Cargar archivo propio</strong><br><small>Sincroniza MKV/MP4 local</small></div>
+                <input type="file" id="file-upload" accept="video/*,audio/*" style="display:none;">
+            </label>
+            <div class="btn-menu desktop-only-btn" id="btn-screenshare-trigger">
+                <i class="fas fa-desktop" style="color: #3b82f6; font-size: 22px;"></i>
+                <div><strong>Compartir Pantalla</strong><br><small>Transmite Netflix/Web a todos</small></div>
+            </div>
+            <div class="btn-menu desktop-only-btn" id="btn-join-cam" style="background:#111">
+                <i class="fas fa-video" style="color: #10b981; font-size: 22px;"></i>
+                <div><strong>Activar Cámara y Micrófono</strong><br><small>Habilita tu cámara frontal y audio</small>
+                </div>
+            </div>
+            <div class="btn-menu desktop-only-btn" style="background:#111"
+                onclick="document.getElementById('start-menu').style.display='none'; document.querySelector('.custom-controls').style.display='flex'">
+                <i class="fas fa-users" style="color: #a1a1aa; font-size: 22px;"></i>
+                <div><strong>Entrar como Espectador</strong><br><small>Entrar sin encender la cámara</small></div>
+            </div>
+        </div>
+
+        <video id="main-video" playsinline></video>
+
+        <div class="webcams-container-overlay" id="webcams-container-overlay"></div>
+
+        <div class="custom-controls" id="custom-controls">
+            <button class="control-btn" id="btn-play-pause"><i class="fas fa-play" id="play-icon"></i></button>
+
+            <div style="display:flex; gap:10px; margin-left: 10px;">
+                <button class="control-btn reaction-btn" data-emoji="🥺" title="Triste">🥺</button>
+                <button class="control-btn reaction-btn" data-emoji="👍🏽" title="Me Gusta">👍🏽</button>
+                <button class="control-btn reaction-btn" data-emoji="✌️" title="Paz">✌️</button>
+                <button class="control-btn reaction-btn" data-emoji="💥" title="Bomba">💥</button>
+            </div>
+
+            <div class="progress-bar-container" id="pb-wrapper">
+                <span id="time-current">0:00</span>
+                <input type="range" id="progress-bar" value="0" step="0.1" min="0">
+                <span id="time-total">0:00</span>
+            </div>
+
+            <button class="control-btn" id="btn-toggle-mic" title="Micrófono"><i class="fas fa-microphone-slash"
+                    style="color:#ef4444"></i></button>
+            <button class="control-btn" id="btn-toggle-cam" title="Cámara"><i class="fas fa-video-slash"
+                    style="color:#ef4444"></i></button>
+
+            <button class="control-btn" id="btn-open-float-chat" title="Abrir Chat Flotante"><i
+                    class="fas fa-comment-alt"></i></button>
+
+            <button class="control-btn" id="btn-theater" title="Modo Cine"><i class="fas fa-tv"></i></button>
+            <button class="control-btn" id="btn-fullscreen"><i class="fas fa-expand"></i></button>
+        </div>
+    </main>
+
+    <aside class="right-panel hidden" id="app-aside">
+        <header class="panel-header">
+            <div class="status-dot" id="status-dot"></div>
+            <div style="flex:1">
+                <h3 id="room-name">WatchParty Room</h3>
+                <small id="status-text">Buscando servidor...</small>
+            </div>
+        </header>
+
+        <div class="webcams-container-sidebar" id="webcams-container-sidebar"></div>
+
+        <div class="chat-area" id="chat-area"></div>
+        <div id="typing-indicator"
+            style="padding: 5px 20px; font-size: 11px; color: var(--text-muted); font-style: italic; min-height: 20px;">
+        </div>
+
+        <div class="chat-input-container" style="position: relative;">
+            <div class="chat-box">
+                <i class="fas fa-sticky-note" id="btn-sticker"
+                    style="color: var(--text-muted); cursor: pointer; font-size: 20px; margin-right: 5px; transition: 0.2s;"
+                    onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'"
+                    title="Stickers"></i>
+                <input type="text" placeholder="Escribe un mensaje..." id="chat-input" autocomplete="off">
+                <i class="fas fa-paper-plane" style="color: var(--accent); cursor: pointer;" id="btn-send"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CAJÓN DE STICKERS (MOVIDO ANTES DEL SCRIPT PARA EVITAR ERRORES DE DOM) -->
+    <div id="sticker-drawer"
+        style="display:none; position:fixed; width:280px; height:280px; background:var(--bg-panel); border:1px solid #333; border-radius:12px; box-shadow:0 -5px 20px rgba(0,0,0,0.5); flex-direction:column; overflow:hidden; z-index:10000;">
+        <div id="sticker-tabs"
+            style="display:flex; overflow-x:auto; background:#111; padding:10px; gap:8px; border-bottom:1px solid #222;">
+        </div>
+        <div id="sticker-grid"
+            style="flex:1; overflow-y:auto; padding:10px; display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; align-content:start;">
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+    <script>
+        // ==========================================
+        // 1. SISTEMA DE LOGIN Y AUTO-CONEXIÓN
+        // ==========================================
+        let username = localStorage.getItem('watchPartyUser') || "";
+        let myAvatar = localStorage.getItem('watchPartyAvatar') || "";
+        let myPeerId = null;
+        let joinedRoom = false;
+
+        const loginScreen = document.getElementById('login-screen');
+        const loginInput = document.getElementById('login-username');
+        const loginBtn = document.getElementById('login-btn');
+        const loginRobotImg = document.getElementById('login-robot-img');
+
+        function cerrarSesion() {
+            localStorage.removeItem('watchPartyUser');
+            localStorage.removeItem('watchPartyAvatar');
+            location.reload();
+        }
+
+        function iniciarAplicacion(nombre, avatar) {
+            username = nombre;
+            myAvatar = avatar;
+
+            localStorage.setItem('watchPartyUser', username);
+            localStorage.setItem('watchPartyAvatar', myAvatar);
+
+            loginScreen.style.display = 'none';
+            document.getElementById('app-nav').classList.remove('hidden');
+            document.getElementById('app-main').classList.remove('hidden');
+            document.getElementById('app-aside').classList.remove('hidden');
+
+            actualizarBienvenida();
+
+            if (myPeerId && !joinedRoom) {
+                socket.emit('join-room', username, myAvatar, myPeerId);
+                joinedRoom = true;
+            }
+
+            // En celulares mostramos la barra de controles inferior para que tengan acceso a la cámara
+            if (window.innerWidth <= 768) {
+                document.getElementById('custom-controls').style.display = 'flex';
+            }
+        }
+
+        let loginHasCustomPhoto = false;
+        if (username && myAvatar) {
+            iniciarAplicacion(username, myAvatar);
+        } else {
+            loginInput.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                if (val.length > 0 && !loginHasCustomPhoto) {
+                    loginRobotImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(val)}&backgroundColor=ff5722`;
+                }
+            });
+
+            const loginAvatarUpload = document.getElementById('login-avatar-upload');
+            if (loginAvatarUpload) {
+                loginAvatarUpload.onchange = function (e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const img = new Image();
+                        img.onload = function () {
+                            const canvas = document.createElement('canvas');
+                            const MAX_SIZE = 150;
+                            canvas.width = MAX_SIZE; canvas.height = MAX_SIZE;
+                            const ctx = canvas.getContext('2d');
+                            const size = Math.min(img.width, img.height);
+                            const sx = (img.width - size) / 2; const sy = (img.height - size) / 2;
+                            ctx.drawImage(img, sx, sy, size, size, 0, 0, MAX_SIZE, MAX_SIZE);
+                            loginRobotImg.src = canvas.toDataURL('image/jpeg', 0.85);
+                            loginHasCustomPhoto = true;
+                            const badge = document.querySelector('.login-avatar-badge');
+                            if (badge) {
+                                badge.innerHTML = '<i class="fas fa-check"></i>';
+                                badge.style.background = '#10b981';
+                            }
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                };
+            }
+
+            document.getElementById('login-random-avatar-btn').onclick = () => {
+                const val = loginInput.value.trim() || 'WatchParty';
+                const randomSeed = val + Math.random().toString(36).substring(2, 8);
+                loginRobotImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(randomSeed)}&backgroundColor=ff5722`;
+                loginHasCustomPhoto = false;
+                const badge = document.querySelector('.login-avatar-badge');
+                if (badge) {
+                    badge.innerHTML = '<i class="fas fa-camera"></i>';
+                    badge.style.background = 'var(--accent)';
+                }
+            };
+
+            loginBtn.onclick = () => {
+                const val = loginInput.value.trim();
+                if (!val) return alert("Por favor, ingresa un nombre para entrar.");
+                iniciarAplicacion(val, loginRobotImg.src);
+            };
+
+            loginInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') loginBtn.click();
+            });
+        }
+
+        function actualizarBienvenida() {
+            document.getElementById('welcome-text').innerHTML = `
+                <!-- Botón de PC (se oculta en celular) -->
+                <button class="desktop-only-btn" onclick="document.getElementById('btn-settings').click()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color:white; padding: 6px 18px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: 0.2s; margin-top: 15px;"><i class="fas fa-edit"></i> Cambiar Foto / Nombre</button>
+
+                <!-- Diseño limpio de tu captura (se oculta en PC, se muestra en celular) -->
+                <div style="display: none; flex-direction:column; align-items:center; gap:12px; margin-bottom:15px;" class="mobile-only-btn">
+                    <img src="${myAvatar}" style="width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--accent); background:#111; object-fit:cover; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                    <div style="font-size: 24px; font-weight: 700; color: white; letter-spacing: 0.5px;">¡Hola, ${sanitizar(username)}!</div>
+                    <button onclick="document.getElementById('btn-settings').click()" style="background: #27272a; border: 1px solid #3f3f46; color:white; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-edit"></i> Configurar Perfil
+                    </button>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // 2. CONEXIÓN DE RED (SOCKET & PEER)
+        // ==========================================
+        const isSecure = window.location.protocol === 'https:';
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.') || window.location.hostname.endsWith('.local');
+
+        // Fix para ERR_SSL_PROTOCOL_ERROR: Si entran a localhost/LAN con HTTPS pero el puerto no es 443, redirigir a HTTP
+        if (isLocalhost && isSecure && window.location.port !== '443' && window.location.port !== '') {
+            window.location.protocol = 'http:';
+        }
+
+        // Configuración Socket.io automática (detecta protocolo y puerto)
+        const socket = io();
+
+
+        socket.on('connect_error', (err) => {
+            console.error("Error de conexión Socket.IO:", err);
+            document.getElementById('status-text').textContent = "Error de conexión... reconectando";
+            document.getElementById('status-dot').className = 'status-dot';
+        });
+
+        socket.on('connect', () => {
+            console.log("¡Conectado!");
+            document.getElementById('status-dot').classList.add('online');
+            document.getElementById('status-text').textContent = "En línea como " + sanitizar(username);
+            if (username && myAvatar && myPeerId) {
+                socket.emit('join-room', username, myAvatar, myPeerId);
+            }
+        });
+
+        // CONFIGURACIÓN PEERJS CLOUD OPTIMIZADA (VERSION SIN TURN)
+        const myPeer = new Peer(undefined, {
+            debug: 1,
+            config: {
+                'iceServers': [
+                    { 'urls': 'stun:stun.l.google.com:19302' },
+                    { 'urls': 'stun:stun1.l.google.com:19302' },
+                    { 'urls': 'stun:stun2.l.google.com:19302' },
+                    { 'urls': 'stun:stun3.l.google.com:19302' },
+                    { 'urls': 'stun:stun4.l.google.com:19302' },
+                    { 'urls': 'stun:stun.cloudflare.com:3478' },
+                    { 'urls': 'stun:stun.services.mozilla.com' },
+                    { 'urls': 'stun:stun.l.google.com:19305' },
+                    { 'urls': 'stun:stun1.l.google.com:19305' },
+                    { 'urls': 'stun:stun2.l.google.com:19305' }
+                ],
+                'iceCandidatePoolSize': 10,
+                'sdpSemantics': 'unified-plan'
+            }
+        });
+
+
+
+        myPeer.on('open', id => {
+            myPeerId = id;
+            if (loginScreen.style.display === 'none' && !joinedRoom) {
+                socket.emit('join-room', username, myAvatar, id);
+                joinedRoom = true;
+            }
+        });
+
+        const playSnd = (id) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.currentTime = 0;
+                el.play().catch(e => console.log("Sonido bloqueado"));
+            }
+        };
+
+        // ==========================================
+        // 3. LÓGICA DE LA APP (Ajustes, UI, Media)
+        // ==========================================
+        let myActiveStream = null;
+        let localCamStream = null;
+        let peersInRoom = [];
+
+        const mainVideo = document.getElementById('main-video');
+        const startMenu = document.getElementById('start-menu');
+        const customControls = document.getElementById('custom-controls');
+        const mainView = document.getElementById('app-main');
+        const webcamsOverlay = document.getElementById('webcams-container-overlay');
+        const webcamsSidebar = document.getElementById('webcams-container-sidebar');
+
+        // ==== MODAL DE CONFIGURACIÓN ====
+        document.getElementById('btn-settings').onclick = () => {
+            document.getElementById('config-modal').style.display = 'flex';
+            document.getElementById('config-avatar-preview').src = myAvatar;
+            document.getElementById('config-name-input').value = username;
+        };
+        document.getElementById('close-config').onclick = () => document.getElementById('config-modal').style.display = 'none';
+
+        document.getElementById('btn-random-avatar').onclick = () => {
+            const newName = document.getElementById('config-name-input').value.trim() || username;
+            const autoAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(newName + Math.random())}&backgroundColor=ff5722`;
+            document.getElementById('config-avatar-preview').src = autoAvatar;
+        };
+
+        const avatarUploadConfig = document.getElementById('avatar-upload-config');
+        if (avatarUploadConfig) {
+            avatarUploadConfig.onchange = function (e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 150;
+                        let width = img.width; let height = img.height;
+                        canvas.width = MAX_SIZE; canvas.height = MAX_SIZE;
+                        const ctx = canvas.getContext('2d');
+                        const size = Math.min(width, height);
+                        const sx = (width - size) / 2; const sy = (height - size) / 2;
+                        ctx.drawImage(img, sx, sy, size, size, 0, 0, MAX_SIZE, MAX_SIZE);
+                        document.getElementById('config-avatar-preview').src = canvas.toDataURL('image/jpeg', 0.85);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+        }
+
+        document.getElementById('btn-save-config').onclick = () => {
+            const newName = document.getElementById('config-name-input').value.trim();
+            const newAvatar = document.getElementById('config-avatar-preview').src;
+
+            if (newName) {
+                username = newName;
+                myAvatar = newAvatar;
+
+                localStorage.setItem('watchPartyUser', username);
+                localStorage.setItem('watchPartyAvatar', myAvatar);
+
+                // Notificar a los demás del cambio
+                socket.emit('update-profile', username, myAvatar);
+
+                // Actualizar mi propia UI local (Nombre y Avatar)
+                document.getElementById('status-text').textContent = "En línea como " + sanitizar(username);
+                actualizarBienvenida();
+
+                // Actualizar mis propias webcams en UI
+                ['overlay', 'sidebar'].forEach(prefix => {
+                    const myItem = document.getElementById(`${prefix}-${myPeerId}`);
+                    if (myItem) {
+                        const wrapper = myItem.querySelector('.webcam-wrapper');
+                        const label = myItem.querySelector('.webcam-name');
+                        if (wrapper) wrapper.style.backgroundImage = `url('${sanitizar(myAvatar)}')`;
+                        if (label) {
+                            label.setAttribute('data-name', username + " (TÚ)");
+                            label.textContent = (prefix === 'sidebar' && (username + " (TÚ)").length > 10) ? (username + " (TÚ)").substring(0, 10) + "..." : (username + " (TÚ)");
+                        }
+                    }
+                });
+
+                // Actualizar mis propios Avatares y Nombres en el CHAT en vivo
+                document.querySelectorAll(`.msg-avatar-${myPeerId}`).forEach(img => img.src = myAvatar);
+                document.querySelectorAll(`.msg-username-${myPeerId}`).forEach(h4 => h4.textContent = username);
+
+                document.getElementById('config-modal').style.display = 'none';
+            }
+        };
+
+        // ==== UI CONTROLES ====
+        const toggleChatGlobal = () => {
+            const rightPanel = document.querySelector('.right-panel');
+            const toggleIcon = document.querySelector('#btn-toggle-chat i');
+            rightPanel.classList.toggle('hidden');
+            if (rightPanel.classList.contains('hidden')) {
+                toggleIcon.className = "fas fa-comment-slash";
+            } else {
+                toggleIcon.className = "fas fa-comment-dots";
+                scrollChat('chat-area');
+            }
+        };
+        document.getElementById('btn-toggle-chat').onclick = toggleChatGlobal;
+
+        document.getElementById('btn-theater').onclick = () => {
+            document.querySelector('.right-panel').classList.toggle('hidden');
+            document.querySelector('.side-nav').classList.toggle('hidden');
+        };
+
+        document.getElementById('webcam-overlay').onclick = function (e) {
+            if (e.target.id === 'webcam-overlay' || e.target.id === 'webcam-overlay-close') {
+                this.classList.remove('active');
+                document.getElementById('webcam-overlay-video').srcObject = null;
+            }
+        };
+
+        // ==== TRANSMISION ARREGLADA (SIN LÍMITES ESTRICTOS DE RESOLUCIÓN) ====
+        let isAudioEnabled = false;
+        let isVideoEnabled = false;
+        const btnToggleMic = document.getElementById('btn-toggle-mic');
+        const btnToggleCam = document.getElementById('btn-toggle-cam');
+
+        async function ensureLocalCamStream() {
+            if (!localCamStream) {
+                try {
+                    // Video: true garantiza que la cámara funcione en CUALQUIER PC o Celular.
+                    const constraints = {
+                        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 24 } },
+                        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+                    };
+
+                    localCamStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                    localCamStream.getAudioTracks().forEach(t => t.enabled = false);
+                    localCamStream.getVideoTracks().forEach(t => t.enabled = false);
+                    isVideoEnabled = false; isAudioEnabled = false;
+
+                    agregarWebcamLocal(myPeerId, localCamStream, username + " (TÚ)", myAvatar, true, false);
+                    peersInRoom.forEach(peerId => llamarLlamadaWebcam(peerId));
+
+                    startMenu.style.display = 'none';
+                    customControls.style.display = 'flex';
+                } catch (e) { alert("Se requieren permisos de Cámara y Micrófono: " + e.message); }
+            }
+        }
+
+        function llamarLlamadaWebcam(peerId) {
+            if (localCamStream) {
+                myPeer.call(peerId, localCamStream, {
+                    metadata: { type: 'webcam', username: username, avatar: myAvatar, camEnabled: isVideoEnabled }
+                });
+            }
+        }
+
+        function agregarWebcamLocal(id, stream, name, avatarUrl, isLocal = false, isCamActive = false) {
+            webcamsOverlay.style.display = 'flex'; webcamsSidebar.style.display = 'flex';
+            const createOrUpdate = (container, prefix) => {
+                let existingItem = document.getElementById(`${prefix}-${id}`);
+                if (!existingItem) {
+                    existingItem = document.createElement('div');
+                    existingItem.className = 'webcam-item'; existingItem.id = `${prefix}-${id}`;
+                    existingItem.title = "Clic para Enfocar";
+
+                    const existingW = document.createElement('div');
+                    existingW.className = 'webcam-wrapper';
+                    existingW.style.backgroundImage = `url('${sanitizar(avatarUrl)}')`;
+                    existingW.style.backgroundSize = 'cover';
+                    existingW.style.backgroundPosition = 'center';
+                    if (prefix === 'sidebar') { existingW.style.width = '70px'; existingW.style.height = '70px'; }
+
+                    const vid = document.createElement('video');
+                    vid.className = 'webcam-video'; vid.autoplay = true; vid.playsInline = true;
+                    vid.style.opacity = isCamActive ? '1' : '0';
+                    if (isLocal) { vid.muted = true; vid.classList.add('local-cam'); }
+
+                    const namelabel = document.createElement('div');
+                    namelabel.className = 'webcam-name';
+                    namelabel.style.display = 'flex'; namelabel.style.alignItems = 'center'; namelabel.style.gap = '5px';
+                    namelabel.setAttribute('data-name', name);
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = (prefix === 'sidebar' && name.length > 10) ? name.substring(0, 10) + "..." : name;
+
+                    const micIcon = document.createElement('i');
+                    micIcon.id = `mic-icon-${prefix}-${id}`;
+                    micIcon.className = 'fas fa-microphone-slash';
+                    micIcon.style.color = '#ef4444';
+                    micIcon.style.fontSize = '12px';
+
+                    namelabel.appendChild(nameSpan);
+                    namelabel.appendChild(micIcon);
+
+                    existingW.appendChild(vid); existingItem.appendChild(existingW); existingItem.appendChild(namelabel);
+                    container.appendChild(existingItem);
+
+                    vid.srcObject = stream;
+                    vid.play().catch(() => { vid.muted = true; vid.play(); });
+
+                    existingItem.onclick = () => {
+                        const overlay = document.getElementById('webcam-overlay');
+                        const overlayVid = document.getElementById('webcam-overlay-video');
+                        const overlayName = document.getElementById('webcam-overlay-name');
+
+                        overlayVid.setAttribute('data-peer-id', id); // Guardamos la ID para actualizaciones de perfil instantaneas
+                        overlayVid.style.backgroundImage = `url('${sanitizar(avatarUrl)}')`;
+                        overlayVid.style.backgroundSize = 'cover';
+                        overlayVid.style.backgroundPosition = 'center';
+                        overlayVid.style.opacity = vid.style.opacity === '1' ? '1' : '0.2';
+
+                        overlay.classList.add('active');
+                        overlayVid.srcObject = stream;
+                        overlayVid.muted = isLocal;
+                        overlayName.textContent = name;
+                        if (isLocal) overlayVid.classList.add('local-cam');
+                        else overlayVid.classList.remove('local-cam');
+                        overlayVid.play().catch(e => console.log(e));
+                    };
+                } else {
+                    const vid = existingItem.querySelector('video');
+                    vid.srcObject = stream; vid.style.opacity = isCamActive ? '1' : '0';
+                }
+            };
+            createOrUpdate(webcamsOverlay, 'overlay'); createOrUpdate(webcamsSidebar, 'sidebar');
+        }
+
+        function mostrarGranNotificacion(msg, iconClass, color) {
+            const container = document.getElementById('big-notification-container');
+            const toast = document.createElement('div');
+            toast.className = 'big-toast';
+            toast.style.borderColor = color;
+            toast.style.boxShadow = `0 15px 50px rgba(0,0,0,0.8), 0 0 20px ${color}44`;
+
+            toast.innerHTML = `
+                <i class="${iconClass}" style="color: ${color}"></i>
+                <div class="big-toast-text">
+                    <span class="big-toast-title" style="color: ${color}">${msg.split(' ')[0]}</span>
+                    <span class="big-toast-sub">${msg.split(' ').slice(1).join(' ')}</span>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4600);
+        }
+
+        socket.on('cam-toggled', (peerId, isEnabled, name) => {
+            const items = [document.getElementById(`overlay-${peerId}`), document.getElementById(`sidebar-${peerId}`)];
+            items.forEach(item => {
+                if (item) { const vid = item.querySelector('video'); if (vid) vid.style.opacity = isEnabled ? '1' : '0'; }
+            });
+            const status = isEnabled ? "ENCENDIDO" : "APAGADO";
+            const icon = isEnabled ? "fas fa-video" : "fas fa-video-slash";
+            const color = isEnabled ? "#10b981" : "#ef4444";
+
+            agregarMensajeSistema(`${name} ha ${status.toLowerCase()} su cámara.`, color);
+            mostrarGranNotificacion(`${name} CÁMARA ${status}`, icon, color);
+        });
+
+        socket.on('mic-toggled', (peerId, isEnabled, name) => {
+            const status = isEnabled ? "ENCENDIDO" : "APAGADO";
+            const iconClass = isEnabled ? "fas fa-microphone" : "fas fa-microphone-slash";
+            const color = isEnabled ? "#3b82f6" : "#ef4444";
+
+            // Actualizar iconos persistentes en los webcams
+            ['overlay', 'sidebar'].forEach(prefix => {
+                const micIcon = document.getElementById(`mic-icon-${prefix}-${peerId}`);
+                if (micIcon) {
+                    micIcon.className = isEnabled ? 'fas fa-microphone' : 'fas fa-microphone-slash';
+                    micIcon.style.color = isEnabled ? '#10b981' : '#ef4444';
+                }
+            });
+
+            agregarMensajeSistema(`${name} ha ${status.toLowerCase()} su micrófono.`, color);
+            mostrarGranNotificacion(`${name} MIC ${status}`, iconClass, color);
+        });
+
+        socket.on('system-message', (data) => {
+            const msg = typeof data === 'string' ? data : data.msg;
+            agregarMensajeSistema(msg, "#8b5cf6");
+            mostrarGranNotificacion("SISTEMA " + msg, "fas fa-info-circle", "#8b5cf6");
+        });
+
+        socket.on('user-profile-updated', (data) => {
+            const { peerId, username: newName, avatar: newAvatar } = data;
+
+            // Actualizar en el overlay y sidebar de webcams
+            ['overlay', 'sidebar'].forEach(prefix => {
+                const item = document.getElementById(`${prefix}-${peerId}`);
+                if (item) {
+                    const wrapper = item.querySelector('.webcam-wrapper');
+                    const label = item.querySelector('.webcam-name');
+                    if (wrapper) wrapper.style.backgroundImage = `url('${sanitizar(newAvatar)}')`;
+                    if (label) {
+                        label.setAttribute('data-name', newName);
+                        label.textContent = (prefix === 'sidebar' && newName.length > 10) ? newName.substring(0, 10) + "..." : newName;
+                    }
+                }
+            });
+
+            // Actualizar Avatares y Nombres en el CHAT (mensajes ya enviados)
+            document.querySelectorAll(`.msg-avatar-${peerId}`).forEach(img => img.src = newAvatar);
+            document.querySelectorAll(`.msg-username-${peerId}`).forEach(h4 => h4.textContent = newName);
+
+            // Si está abierto el overlay grande de esta persona, actualizarlo
+            const overlay = document.getElementById('webcam-overlay');
+            if (overlay.classList.contains('active')) {
+                const overlayVid = document.getElementById('webcam-overlay-video');
+                const overlayName = document.getElementById('webcam-overlay-name');
+                const currentId = overlayVid.getAttribute('data-peer-id');
+                if (currentId === peerId) {
+                    overlayVid.style.backgroundImage = `url('${sanitizar(newAvatar)}')`;
+                    overlayName.textContent = newName;
+                }
+            }
+        });
+
+        document.body.addEventListener('click', () => {
+            document.querySelectorAll('.webcam-item').forEach(item => {
+                const v = item.querySelector('video');
+                if (v && !v.classList.contains('local-cam') && v.muted) {
+                    v.muted = false;
+                    const label = item.querySelector('.webcam-name');
+                    label.innerHTML = label.getAttribute('data-name');
+                }
+            });
+        }, { capture: true });
+
+        btnToggleMic.onclick = async () => {
+            await ensureLocalCamStream();
+            if (localCamStream) {
+                isAudioEnabled = !isAudioEnabled;
+                localCamStream.getAudioTracks().forEach(t => t.enabled = isAudioEnabled);
+                btnToggleMic.innerHTML = isAudioEnabled ? '<i class="fas fa-microphone" style="color:#10b981"></i>' : '<i class="fas fa-microphone-slash" style="color:#ef4444"></i>';
+                socket.emit('toggle-mic', isAudioEnabled);
+            }
+        };
+
+        btnToggleCam.onclick = async () => {
+            await ensureLocalCamStream();
+            if (localCamStream) {
+                isVideoEnabled = !isVideoEnabled;
+                localCamStream.getVideoTracks().forEach(t => t.enabled = isVideoEnabled);
+                btnToggleCam.innerHTML = isVideoEnabled ? '<i class="fas fa-video" style="color:#10b981"></i>' : '<i class="fas fa-video-slash" style="color:#ef4444"></i>';
+
+                ['overlay', 'sidebar'].forEach(p => {
+                    const myVidItem = document.getElementById(`${p}-${myPeerId}`);
+                    if (myVidItem) { const v = myVidItem.querySelector('video'); if (v) v.style.opacity = isVideoEnabled ? '1' : '0'; }
+                });
+                socket.emit('toggle-cam', isVideoEnabled);
+            }
+        };
+
+        document.getElementById('btn-join-cam').onclick = async () => {
+            await ensureLocalCamStream();
+            if (localCamStream) {
+                isAudioEnabled = true; isVideoEnabled = true;
+                localCamStream.getAudioTracks().forEach(t => t.enabled = true); localCamStream.getVideoTracks().forEach(t => t.enabled = true);
+                btnToggleMic.innerHTML = '<i class="fas fa-microphone" style="color:#10b981"></i>'; btnToggleCam.innerHTML = '<i class="fas fa-video" style="color:#10b981"></i>';
+                ['overlay', 'sidebar'].forEach(p => {
+                    const myVidItem = document.getElementById(`${p}-${myPeerId}`);
+                    if (myVidItem) { const v = myVidItem.querySelector('video'); if (v) v.style.opacity = '1'; }
+                });
+                socket.emit('toggle-cam', true);
+                socket.emit('toggle-mic', true);
+            }
+        };
+
+        // ==== COMPARTIR PANTALLA ARREGLADO ====
+        myPeer.on('call', call => {
+            call.answer();
+            call.on('stream', remoteStream => {
+                const connectionType = (call.metadata && call.metadata.type) ? call.metadata.type : 'screenshare';
+                if (connectionType === 'webcam') {
+                    const callerName = call.metadata.username || "Invitado";
+                    const callerAvatar = call.metadata.avatar || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${encodeURIComponent(callerName)}`;
+                    const isCamActive = call.metadata.camEnabled || false;
+                    agregarWebcamLocal(call.peer, remoteStream, callerName, callerAvatar, false, isCamActive);
+                } else {
+                    if (remoteStream.getVideoTracks().length > 0) prepararInterfazVideo(remoteStream, true, false);
+                    else { const audio = document.createElement('audio'); audio.srcObject = remoteStream; audio.play().catch(e => console.warn(e)); }
+                }
+            });
+        });
+
+        function prepararInterfazVideo(fuente, esStream, isSender = true) {
+            startMenu.style.display = 'none';
+            mainVideo.style.display = 'block';
+            customControls.style.display = 'flex';
+
+            if (esStream) {
+                mainVideo.srcObject = fuente;
+                mainVideo.muted = isSender; // El que transmite debe estar muteado para evitar eco
+                document.getElementById('pb-wrapper').style.visibility = 'hidden';
+            } else {
+                if (mainVideo.srcObject) mainVideo.srcObject = null;
+                mainVideo.src = fuente;
+                mainVideo.muted = false;
+                document.getElementById('pb-wrapper').style.visibility = 'visible';
+            }
+
+            // Forzar play y manejar bloqueos de autoplay de navegadores móviles/escritorio
+            const attemptPlay = () => {
+                mainVideo.play().catch(e => {
+                    console.warn("Autoplay bloqueado:", e);
+                    startMenu.style.display = 'block';
+                    document.getElementById('welcome-text').innerHTML = `
+                        <div style="cursor:pointer; padding:20px; background:var(--accent); border-radius:15px; color:white; font-weight:bold;">
+                            <i class="fas fa-play" style="font-size:24px; margin-bottom:10px;"></i><br>
+                            TOCA PARA VER LA TRANSMISIÓN
+                        </div>`;
+                    startMenu.onclick = () => {
+                        mainVideo.muted = false;
+                        mainVideo.play();
+                        startMenu.style.display = 'none';
+                    };
+                });
+            };
+
+            if (mainVideo.readyState >= 3) attemptPlay();
+            else mainVideo.onloadedmetadata = attemptPlay;
+        }
+
+        document.getElementById('btn-screenshare-trigger').onclick = () => {
+            socket.emit('request-screenshare', async (response) => {
+                if (!response.allowed) return alert(`No tienes permiso para compartir en este momento. ${response.adminName} está compartiendo.`);
+                try {
+                    // Configuración optimizada para evitar pantallas negras en túneles Cloudflare
+                    const stream = await navigator.mediaDevices.getDisplayMedia({
+                        video: {
+                            cursor: "always",
+                            frameRate: { ideal: 30 },
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        },
+
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
+                    });
+                    myActiveStream = stream;
+                    prepararInterfazVideo(stream, true, true);
+
+                    peersInRoom.forEach(peerId => {
+                        myPeer.call(peerId, stream, { metadata: { type: 'screenshare' } });
+                    });
+                    stream.getVideoTracks()[0].onended = () => {
+                        myActiveStream = null;
+                        socket.emit('stop-screenshare');
+                        location.reload();
+                    };
+                } catch (err) {
+                    alert("Error compartiendo pantalla: " + err.message);
+                    socket.emit('stop-screenshare');
+                }
+            });
+        };
+
+        document.getElementById('file-upload').onchange = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            socket.emit('request-screenshare', (response) => {
+                if (!response.allowed) { alert(`No tienes permiso para compartir en este momento. ${response.adminName} está compartiendo.`); document.getElementById('file-upload').value = ''; return; }
+                const url = URL.createObjectURL(file);
+                prepararInterfazVideo(url, false, true);
+            });
+        };
+
+        // ==== CONTROLES DEL VIDEO ====
+        const btnPlayPause = document.getElementById('btn-play-pause');
+        const playIcon = document.getElementById('play-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const timeCurrent = document.getElementById('time-current');
+        const timeTotal = document.getElementById('time-total');
+        const btnFullscreen = document.getElementById('btn-fullscreen');
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60); const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        btnPlayPause.onclick = () => { if (mainVideo.paused) mainVideo.play(); else mainVideo.pause(); };
+        btnFullscreen.onclick = () => { if (!document.fullscreenElement) mainView.requestFullscreen().catch(err => console.log(err)); else document.exitFullscreen(); };
+
+        mainVideo.onloadedmetadata = () => { progressBar.max = mainVideo.duration; timeTotal.textContent = formatTime(mainVideo.duration); };
+
+        let userIsSeeking = false;
+        mainVideo.ontimeupdate = () => {
+            if (!userIsSeeking) progressBar.value = mainVideo.currentTime;
+            timeCurrent.textContent = formatTime(mainVideo.currentTime);
+        };
+
+        progressBar.oninput = (e) => { userIsSeeking = true; timeCurrent.textContent = formatTime(e.target.value); };
+        progressBar.onchange = (e) => {
+            userIsSeeking = false; mainVideo.currentTime = e.target.value;
+            if (!isSyncing && !mainVideo.srcObject) socket.emit('video-sync', { type: (mainVideo.paused ? 'pause' : 'play'), time: mainVideo.currentTime });
+        };
+
+        mainVideo.onplay = () => {
+            playIcon.className = 'fas fa-pause';
+            if (!isSyncing && !mainVideo.srcObject) socket.emit('video-sync', { type: 'play', time: mainVideo.currentTime });
+        };
+        mainVideo.onpause = () => {
+            playIcon.className = 'fas fa-play';
+            if (!isSyncing && !mainVideo.srcObject) socket.emit('video-sync', { type: 'pause', time: mainVideo.currentTime });
+        };
+
+        let hideControlsTimeout;
+        mainView.onmousemove = () => { mainView.classList.remove('idle'); clearTimeout(hideControlsTimeout); hideControlsTimeout = setTimeout(() => mainView.classList.add('idle'), 3000); };
+        mainView.onclick = (e) => { if (e.target === mainVideo || e.target === webcamsOverlay) { mainView.classList.remove('idle'); clearTimeout(hideControlsTimeout); hideControlsTimeout = setTimeout(() => mainView.classList.add('idle'), 3000); } };
+        mainView.onmouseleave = () => mainView.classList.add('idle');
+
+        // ==== SINCRONIZACIÓN WEBSOCKETS ====
+        let isSyncing = false;
+        let lastSyncTime = 0;
+
+        socket.on('video-sync-client', data => {
+            if (mainVideo.srcObject) return;
+            if (Date.now() - lastSyncTime < 300) return;
+            lastSyncTime = Date.now();
+            isSyncing = true;
+            if (Math.abs(mainVideo.currentTime - data.time) > 0.5) mainVideo.currentTime = data.time;
+            if (data.type === 'play' && mainVideo.paused) mainVideo.play().catch(e => console.log(e));
+            else if (data.type === 'pause' && !mainVideo.paused) mainVideo.pause();
+            setTimeout(() => isSyncing = false, 300);
+        });
+
+        // ==== CHAT, EVENTOS DE SALA Y ESCRITURA ====
+        function sanitizar(texto) { const div = document.createElement('div'); div.textContent = texto; return div.innerHTML; }
+
+        function scrollChat(containerId) {
+            const area = document.getElementById(containerId);
+            if (area) area.scrollTop = area.scrollHeight;
+        }
+
+        // Lógica Panel Flotante Interactivo
+        const floatChat = document.getElementById('interactive-floating-chat');
+        document.getElementById('btn-open-float-chat').onclick = () => {
+            floatChat.classList.toggle('hidden');
+            if (!floatChat.classList.contains('hidden')) {
+                scrollChat('float-chat-messages');
+                document.getElementById('float-chat-input').focus();
+            }
+        };
+        document.getElementById('close-float-chat').onclick = () => floatChat.classList.add('hidden');
+
+        let typingTimeout;
+        document.getElementById('chat-input').addEventListener('input', triggerTyping);
+        document.getElementById('float-chat-input').addEventListener('input', triggerTyping);
+
+        function triggerTyping() {
+            socket.emit('typing');
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => { socket.emit('stop-typing'); }, 3000);
+        }
+
+        const typingUsers = new Set();
+        const updateTypingIndicator = () => {
+            const indicator = document.getElementById('typing-indicator');
+            if (typingUsers.size === 0) indicator.textContent = '';
+            else {
+                const names = Array.from(typingUsers).join(', ');
+                indicator.textContent = `${names} ${typingUsers.size === 1 ? 'está escribiendo...' : 'están escribiendo...'}`;
+            }
+        };
+
+        socket.on('user-typing', (data) => { typingUsers.add(data.username); updateTypingIndicator(); });
+        socket.on('user-stop-typing', (data) => { typingUsers.delete(data.username); updateTypingIndicator(); });
+
+        socket.on('connect', () => {
+            document.getElementById('status-dot').classList.add('online');
+            document.getElementById('status-text').textContent = "En línea como " + sanitizar(username);
+        });
+
+        function agregarMensajeSistema(msg, color) {
+            const html = `
+                <div class="chat-msg">
+                    <div class="msg-avatar" style="background:${color};"><i class="fas fa-info"></i></div>
+                    <div class="msg-content"><h4>Sistema</h4><p style="color:${color};">${sanitizar(msg)}</p></div>
+                </div>`;
+            document.getElementById('chat-area').insertAdjacentHTML('beforeend', html);
+            document.getElementById('float-chat-messages').insertAdjacentHTML('beforeend', html);
+            scrollChat('chat-area');
+            scrollChat('float-chat-messages');
+        }
+
+        socket.on('all-users', (data) => {
+            const users = Array.isArray(data) ? data : data.users;
+            peersInRoom = users.filter(u => u.peerId !== myPeerId).map(u => u.peerId);
+            if (data && data.adminName) {
+                document.getElementById('welcome-text').innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:15px;">
+                        <i class="fas fa-broadcast-tower fa-fade" style="font-size:40px; color:var(--accent);"></i>
+                        <br><strong>${sanitizar(data.adminName)}</strong> ya está compartiendo.<small style="color:var(--text-muted)">Conectando a la transmisión...</small>
+                    </div>`;
+                document.querySelectorAll('.btn-menu').forEach(btn => btn.style.display = 'none');
+            }
+        });
+
+        socket.on('user-connected', (data) => {
+            if (data.peerId !== myPeerId) {
+                peersInRoom.push(data.peerId);
+                agregarMensajeSistema(data.username + " entró a la sala.", "#10b981");
+                playSnd('snd-join');
+
+                if (myActiveStream) myPeer.call(data.peerId, myActiveStream, { metadata: { type: 'screenshare' } });
+                if (localCamStream) llamarLlamadaWebcam(data.peerId);
+            }
+        });
+
+        socket.on('user-disconnected', peerId => {
+            peersInRoom = peersInRoom.filter(p => p !== peerId);
+            agregarMensajeSistema("Un usuario abandonó la sala.", "#ef4444");
+            ['overlay', 'sidebar'].forEach(p => { const box = document.getElementById(`${p}-${peerId}`); if (box) box.remove(); });
+            if (webcamsOverlay.children.length === 0) webcamsOverlay.style.display = 'none';
+            if (webcamsSidebar.children.length === 0) webcamsSidebar.style.display = 'none';
+        });
+
+        document.getElementById('btn-send').onclick = () => enviaMensaje('chat-input');
+        document.getElementById('chat-input').onkeypress = (e) => { if (e.key === 'Enter') enviaMensaje('chat-input'); };
+
+        document.getElementById('btn-float-send').onclick = () => enviaMensaje('float-chat-input');
+        document.getElementById('float-chat-input').onkeypress = (e) => { if (e.key === 'Enter') enviaMensaje('float-chat-input'); };
+
+        function enviaMensaje(inputId) {
+            const input = document.getElementById(inputId);
+            const val = input.value.trim();
+            if (val) {
+                socket.emit('send-chat', val);
+                input.value = '';
+                socket.emit('stop-typing');
+            }
+        }
+
+        socket.on('new-chat', data => {
+            if (data.username !== username) playSnd('snd-msg');
+            const color = data.username === username ? "var(--accent)" : "#3b82f6";
+            const avatarUrl = data.avatar ? sanitizar(data.avatar) : `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${encodeURIComponent(data.username)}`;
+
+            let isSticker = false;
+            let displayMsg = sanitizar(data.msg);
+
+            if (data.msg.startsWith('[STICKER:') && data.msg.endsWith(']')) {
+                isSticker = true;
+                const url = sanitizar(data.msg.slice(9, -1));
+                displayMsg = `<img src="${url}" style="max-height: 120px; object-fit: contain; border-radius: 8px; background: transparent; margin-top: 5px; cursor: pointer;" onclick="window.open(this.src, '_blank')">`;
+            } else {
+                displayMsg = `<p>${displayMsg}</p>`;
+            }
+
+            const html = `
+                <div class="chat-msg" data-peer-id="${data.peerId}">
+                    <img class="msg-avatar msg-avatar-${data.peerId}" src="${avatarUrl}" style="border: 2px solid ${color};" alt="Avatar">
+                    <div class="msg-content">
+                        <h4 class="msg-username-${data.peerId}">${sanitizar(data.username)}</h4>
+                        ${displayMsg}
+                    </div>
+                </div>`;
+
+            document.getElementById('chat-area').insertAdjacentHTML('beforeend', html);
+            document.getElementById('float-chat-messages').insertAdjacentHTML('beforeend', html);
+
+            scrollChat('chat-area');
+            scrollChat('float-chat-messages');
+
+            // Burbujas de Notificación Temporal si el chat flotante está cerrado
+            const rightPanelHidden = document.querySelector('.right-panel').classList.contains('hidden');
+            const isFullscreen = document.fullscreenElement != null;
+            const isInteractiveClosed = floatChat.classList.contains('hidden');
+
+            if ((isFullscreen || rightPanelHidden) && isInteractiveClosed) {
+                const container = document.getElementById('floating-chat-container');
+                const el = document.createElement('div');
+                el.className = 'floating-msg';
+                el.style.borderLeftColor = color;
+                el.innerHTML = `
+                    <img class="floating-msg-avatar msg-avatar-${data.peerId}" src="${avatarUrl}" style="border: 2px solid ${color};">
+                    <div class="floating-msg-content" style="flex:1">
+                        <span class="floating-msg-author msg-username-${data.peerId}" style="color:${color}">${sanitizar(data.username)}</span>
+                        ${isSticker ? displayMsg : `<span class="floating-msg-text">${displayMsg}</span>`}
+                    </div>
+                `;
+                container.appendChild(el);
+                setTimeout(() => { if (el.parentElement) el.remove(); }, 4500);
+            }
+        });
+
+        // ==== CAJÓN DE STICKERS DINÁMICOS ====
+        const btnSticker = document.getElementById('btn-sticker');
+        const btnFloatSticker = document.getElementById('btn-float-sticker');
+        const stickerDrawer = document.getElementById('sticker-drawer');
+        const stickerTabs = document.getElementById('sticker-tabs');
+        const stickerGrid = document.getElementById('sticker-grid');
+
+        // Cerrar al hacer clic fuera — usa contains() para cubrir clics en hijos del ícono
+        const isOnStickerBtn = (target) =>
+            btnSticker.contains(target) || btnFloatSticker.contains(target);
+
+        const handleOutsideClick = (e) => {
+            if (!stickerDrawer.contains(e.target) && !isOnStickerBtn(e.target)) {
+                stickerDrawer.style.display = 'none';
+                stickerDrawer.setAttribute('data-last-btn', '');
+            }
+        };
+        document.body.addEventListener('click', (e) => {
+            if (stickerDrawer.style.display === 'flex') handleOutsideClick(e);
+        });
+        // touchend en vez de touchstart para evitar la carrera apertura/cierre en móvil
+        document.body.addEventListener('touchend', (e) => {
+            if (stickerDrawer.style.display === 'flex' && !isOnStickerBtn(e.target)) {
+                handleOutsideClick(e);
+            }
+        }, { passive: true });
+
+        const toggleStickerDrawer = async (btn) => {
+            const isAlreadyOpen = stickerDrawer.style.display === 'flex';
+            const wasOpenedBySameBtn = stickerDrawer.getAttribute('data-last-btn') === btn.id;
+
+            if (isAlreadyOpen && wasOpenedBySameBtn) {
+                stickerDrawer.style.display = 'none';
+                stickerDrawer.setAttribute('data-last-btn', '');
+                return;
+            }
+
+            // Limpiar estilos previos
+            stickerDrawer.style.top = '';
+            stickerDrawer.style.bottom = '';
+            stickerDrawer.style.left = '';
+            stickerDrawer.style.right = '';
+            stickerDrawer.style.transform = '';
+            stickerDrawer.style.width = '280px';
+            stickerDrawer.style.height = '280px';
+            stickerDrawer.setAttribute('data-last-btn', btn.id);
+
+            // Si es el botón del chat flotante, centrar en la pantalla (como un modal)
+            if (btn.id === 'btn-float-sticker') {
+                stickerDrawer.style.width = '320px';
+                stickerDrawer.style.height = '350px';
+                stickerDrawer.style.top = '50%';
+                stickerDrawer.style.left = '50%';
+                stickerDrawer.style.transform = 'translate(-50%, -50%)';
+                stickerDrawer.style.boxShadow = '0 0 50px rgba(0,0,0,0.8), 0 0 20px var(--accent)';
+            } else if (window.innerWidth <= 768) {
+                // Móvil: centrado abajo
+                stickerDrawer.style.bottom = '80px';
+                stickerDrawer.style.left = '50%';
+                stickerDrawer.style.transform = 'translateX(-50%)';
+            } else {
+                // PC/Sidebar: sobre el botón
+                const rect = btn.getBoundingClientRect();
+                let targetLeft = rect.left - (280 / 2) + (rect.width / 2);
+                let targetTop = rect.top - 290;
+
+                if (targetLeft + 290 > window.innerWidth) targetLeft = window.innerWidth - 300;
+                if (targetLeft < 10) targetLeft = 10;
+                if (targetTop < 10) targetTop = rect.bottom + 10;
+
+                stickerDrawer.style.top = targetTop + 'px';
+                stickerDrawer.style.left = targetLeft + 'px';
+            }
+
+            stickerDrawer.style.display = 'flex';
+            scrollChat('sticker-grid'); // Opcional: reset scroll
+
+            try {
+                const res = await fetch('/api/stickers');
+                const packs = await res.json();
+
+                stickerTabs.innerHTML = '';
+                if (packs.length === 0) {
+                    stickerGrid.innerHTML = '<div style="color:#aaa; text-align:center; grid-column:1/-1; padding-top:20px;">No detecté carpetas en servidor /sticker/</div>';
+                    return;
+                }
+
+                packs.forEach((pack, index) => {
+                    const tab = document.createElement('div');
+                    tab.textContent = pack.name;
+                    tab.className = 'sticker-tab-item';
+                    tab.style.padding = "6px 14px";
+                    tab.style.background = index === 0 ? "var(--accent)" : "#222";
+                    tab.style.borderRadius = "8px";
+                    tab.style.cursor = "pointer";
+                    tab.style.fontSize = "12px";
+                    tab.style.fontWeight = "bold";
+                    tab.style.color = "white";
+                    tab.style.whiteSpace = "nowrap";
+                    tab.style.flexShrink = "0"; // VITAL para que el scroll horizontal funcione
+
+                    tab.onclick = (e) => {
+                        Array.from(stickerTabs.children).forEach(c => c.style.background = '#222');
+                        tab.style.background = 'var(--accent)';
+                        renderStickers(pack.stickers);
+                    };
+                    stickerTabs.appendChild(tab);
+
+                    if (index === 0) renderStickers(pack.stickers);
+                });
+            } catch (e) {
+                console.error("Error cargando stickers:", e);
+            }
+        };
+
+        // Manejar el clic o toque con una sola función robusta y aislada
+        const handleStickerBtn = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            if (e.currentTarget) toggleStickerDrawer(e.currentTarget);
+        };
+
+        // Asignación directa y limpia
+        if (btnSticker) {
+            ['mousedown', 'touchstart'].forEach(evt => {
+                btnSticker.addEventListener(evt, handleStickerBtn, { passive: false });
+            });
+        }
+        if (btnFloatSticker) {
+            ['mousedown', 'touchstart'].forEach(evt => {
+                btnFloatSticker.addEventListener(evt, handleStickerBtn, { passive: false });
+            });
+        }
+
+        function renderStickers(stickers) {
+            stickerGrid.innerHTML = '';
+            stickers.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.width = '100%';
+                img.style.cursor = 'pointer';
+                img.style.transition = 'transform 0.2s';
+                img.onmouseover = () => img.style.transform = 'scale(1.15)';
+                img.onmouseout = () => img.style.transform = 'scale(1)';
+
+                const sendSticker = (e) => {
+                    if (e) e.stopPropagation();
+                    socket.emit('send-chat', `[STICKER:${url}]`);
+                    stickerDrawer.style.display = 'none';
+                };
+
+                img.onclick = sendSticker;
+                img.ontouchstart = (e) => {
+                    e.preventDefault(); // Evitar que el click se dispare también
+                    sendSticker(e);
+                };
+                stickerGrid.appendChild(img);
+            });
+        }
+
+        // ==== LLUVIA DE EMOJIS Y REACCIONES ====
+        document.querySelectorAll('.reaction-btn').forEach(btn => {
+            btn.onclick = () => {
+                const emoji = btn.getAttribute('data-emoji');
+                socket.emit('reaction', emoji);
+                lanzarLluvia(emoji);
+            };
+        });
+
+        socket.on('reaction', (emoji) => {
+            playSnd('snd-reaction');
+            lanzarLluvia(emoji);
+        });
+
+        function lanzarLluvia(emoji) {
+            const count = Math.floor(Math.random() * 10) + 15;
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'reaction-emoji';
+                    el.textContent = emoji;
+                    const left = (Math.random() * 93) + 2;
+                    el.style.left = left + '%';
+                    const size = Math.floor(Math.random() * 25) + 25;
+                    el.style.fontSize = size + 'px';
+                    const duration = (Math.random() * 2.0 + 2.0);
+                    el.style.animationDuration = duration + 's';
+                    document.getElementById('app-main').appendChild(el);
+                    setTimeout(() => { if (el.parentElement) el.remove(); }, duration * 1000 + 100);
+                }, Math.random() * 1500);
+            }
+        }
+    </script>
+
+    <div id="big-notification-container"></div>
+
+    <audio id="snd-msg" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
+    <audio id="snd-join" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" preload="auto"></audio>
+    <audio id="snd-reaction" src="https://assets.mixkit.co/active_storage/sfx/2361/2361-preview.mp3"
+        preload="auto"></audio>
+</body>
+
+</html>

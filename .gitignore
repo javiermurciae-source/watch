@@ -1,0 +1,8 @@
+node_modules/
+*.log
+*.cert
+*.key
+*.bak
+.gemini/
+cf_tunnel.log
+server_run.log
