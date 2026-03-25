@@ -1409,14 +1409,7 @@
                 }
             } catch (e) { console.warn("Error TURN, usando credenciales de respaldo:", e); }
 
-            const host = window.location.hostname;
-            const port = window.location.port || (window.location.protocol === 'https:' ? 443 : 80);
-            
             myPeer = new Peer(undefined, { 
-                host: host,
-                port: port,
-                path: '/peerjs',
-                secure: window.location.protocol === 'https:',
                 debug: 1, 
                 config: { iceServers: iceServers, iceCandidatePoolSize: 10 } 
             });
